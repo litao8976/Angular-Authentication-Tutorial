@@ -3,15 +3,21 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken')
-const db = "mongodb://testuser:testpw@ds123136.mlab.com:23136/eventsdb";
-// mongoose.Promise = global.Promise;
+const dbUrl = "mongodb+srv://litao8976:litao8976@cluster0.gnvew.mongodb.net/eventsdb?retryWrites=true&w=majority";
+// const MongoClient = require('mongodb').MongoClient;
+// const uri = "mongodb+srv://litao8976:<password>@cluster0.gnvew.mongodb.net/<dbname>?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   client.close();
+// });
 
-mongoose.connect(db, function(err){
-    if(err){
-        console.error('Error! ' + err)
-    } else {
-      console.log('Connected to mongodb')      
-    }
+mongoose.connect(dbUrl, {useNewUrlParser: true, useUnifiedTopology: true});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('Connected to mongodb')    
 });
 
 function verifyToken(req, res, next) {
@@ -121,9 +127,10 @@ router.post('/register', (req, res) => {
     if (err) {
       console.log(err)      
     } else {
-      let payload = {subject: registeredUser._id}
-      let token = jwt.sign(payload, 'secretKey')
-      res.status(200).send({token})
+      // let payload = {subject: registeredUser._id}
+      // let token = jwt.sign(payload, 'secretKey')
+      // res.status(200).send({token})
+      res.status(200).send(registeredUser)
     }
   })
 })
@@ -137,12 +144,13 @@ router.post('/login', (req, res) => {
       if (!user) {
         res.status(401).send('Invalid Email')
       } else 
-      if ( user.password !== userData.password) {
+      if (user.password !== userData.password) {
         res.status(401).send('Invalid Password')
       } else {
-        let payload = {subject: user._id}
-        let token = jwt.sign(payload, 'secretKey')
-        res.status(200).send({token})
+        // let payload = {subject: user._id}
+        // let token = jwt.sign(payload, 'secretKey')
+        // res.status(200).send({token})
+        res.status(200).send(user);
       }
     }
   })
